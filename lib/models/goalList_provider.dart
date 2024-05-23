@@ -2,20 +2,15 @@ import 'package:flutter/material.dart';
 import 'Goal_model.dart';
 
 class GoalListProvider extends ChangeNotifier {
-  final List<Goal> _goalList = [Goal("Test", 15), Goal('Testing', 12)];
-
-  GoalListProvider() {
-    _goalList[0].addExerciseInDay(0, '100 push up');
-    _goalList[0].addExerciseInDay(0, '100 jumping jacks');
-  }
+  final List<Goal> _goalList = [];
 
   void addGoal(String title, int durationDays) {
     _goalList.add(Goal(title, durationDays));
     notifyListeners();
   }
 
-  void removeGoal(String title) {
-    _goalList.removeWhere((item) => item.name == title);
+  void removeGoal(Goal goal) {
+    _goalList.remove(goal);
     notifyListeners();
   }
 
@@ -23,6 +18,17 @@ class GoalListProvider extends ChangeNotifier {
 
   void addExerciseToGoal(Goal goal, int day, String exercise) {
     goal.addExerciseInDay(day, exercise);
+    notifyListeners();
+  }
+
+  void updateGoal(Goal goal, String newTitle, int newDuration) {
+    goal.name = newTitle;
+    goal.updateDurationAndDays(newDuration);
+    notifyListeners();
+  }
+
+  void setGoal(Goal goal) {
+    _goalList.add(goal);
     notifyListeners();
   }
 }

@@ -1,12 +1,36 @@
+import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
 
 class Goal extends ChangeNotifier {
+  String id;
   String? name;
   int? durationInDays;
   List<ExerciseListPerDay?>? goalList;
 
-  Goal(this.name, this.durationInDays) {
-    goalList = List<ExerciseListPerDay?>.filled(durationInDays!, null);
+  Goal(this.name, this.durationInDays) : id = Uuid().v4() {
+    goalList = [];
+    for (int i = 0; i < durationInDays!; i++) {
+      goalList!.add(null);
+    }
+  }
+
+  void updateDurationAndDays(int day) {
+    if (day == durationInDays) {
+      return;
+    }
+    if (day < durationInDays!) {
+      for (int i = day; i < durationInDays!; i++) {
+        goalList!.removeAt(day);
+      }
+    }
+    if (day > durationInDays!) {
+      for (int i = 0; i < day - durationInDays!; i++) {
+        goalList!.add(null);
+      }
+    }
+    durationInDays = day;
+
+    notifyListeners();
   }
 
   void updateName(String newName) {

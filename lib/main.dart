@@ -59,35 +59,143 @@ class _MyHomePageState extends State<MyHomePage> {
               return (dayExercises == null ||
                       dayExercises.exerciseList!.isEmpty)
                   ? ListTile(
-                      title: Text('Day ${index + 1} :'),
+                      title: Text('Day ${index + 1}: Please add exercise'),
                     )
                   : ExpansionTile(
-                      title: Text("Day ${index + 1} :"),
+                      title: Text("Day ${index + 1}:"),
                       children: dayExercises.exerciseList!.entries
                           .map<Widget>((entry) {
                         bool completed = entry.value!;
-                        return ListTile(
-                          title: Text(
-                            entry.key!,
-                            // Apply decoration to text if exercise is completed
-                            style: TextStyle(
-                              decoration:
-                                  completed ? TextDecoration.lineThrough : null,
-                            ),
-                          ),
-                          trailing: Checkbox(
-                            value: completed,
-                            onChanged: (bool? newValue) {
+                        return Dismissible(
+                          key: Key(entry.key!),
+                          background: Container(
+                              color: Colors.blue,
+                              child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(left: 16.0),
+                                    child:
+                                        Icon(Icons.edit, color: Colors.white),
+                                  ))),
+                          secondaryBackground: Container(
+                              color: Colors.red,
+                              child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(right: 16.0),
+                                    child:
+                                        Icon(Icons.delete, color: Colors.white),
+                                  ))),
+                          confirmDismiss: (direction) async {
+                            if (direction == DismissDirection.startToEnd) {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  TextEditingController editController =
+                                      TextEditingController(text: entry.key);
+                                  return AlertDialog(
+                                    title: Text('Edit Exercise'),
+                                    content: TextField(
+                                      controller: editController,
+                                      decoration: InputDecoration(
+                                          hintText: 'Exercise name'),
+                                    ),
+                                    actions: [
+                                      ElevatedButton.icon(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        icon: Icon(Icons.close),
+                                        label: Text('Close'),
+                                      ),
+                                      ElevatedButton.icon(
+                                        onPressed: () {
+                                          setState(() {
+                                            String oldKey = entry.key!;
+                                            String newKey = editController.text;
+                                            bool? value = dayExercises
+                                                .exerciseList!
+                                                .remove(oldKey);
+                                            dayExercises.exerciseList![newKey] =
+                                                value;
+                                          });
+                                          Navigator.pop(context);
+                                        },
+                                        icon: Icon(Icons.save),
+                                        label: Text('Save'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                              return false; // Prevent Dismissible from dismissing the item
+                            } else if (direction ==
+                                DismissDirection.endToStart) {
+                              return await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Delete Confirmation'),
+                                    content: Text(
+                                        'Are you sure you want to delete this exercise?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop(false);
+                                        },
+                                        child: Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            dayExercises.exerciseList!
+                                                .remove(entry.key);
+                                          });
+                                          Navigator.of(context).pop(true);
+                                        },
+                                        child: Text('Delete'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                            return false;
+                          },
+                          onDismissed: (direction) {
+                            if (direction == DismissDirection.startToEnd) {
+                              // Handle edit action
+                            } else if (direction ==
+                                DismissDirection.endToStart) {
                               setState(() {
-                                if (newValue != null) {
-                                  completed =
-                                      newValue; // Update the local completed variable
-                                  dayExercises.exerciseList![entry.key] =
-                                      newValue; // Update the exercise completion status
-                                  // Update exercise completion in the goal model
-                                }
+                                dayExercises.exerciseList!.remove(entry.key);
                               });
-                            },
+                            }
+                          },
+                          child: ListTile(
+                            title: Text(
+                              entry.key!,
+                              // Apply decoration to text if exercise is completed
+                              style: TextStyle(
+                                decoration: completed
+                                    ? TextDecoration.lineThrough
+                                    : null,
+                              ),
+                            ),
+                            trailing: Checkbox(
+                              value: completed,
+                              onChanged: (bool? newValue) {
+                                setState(() {
+                                  if (newValue != null) {
+                                    completed = newValue;
+                                    dayExercises.exerciseList![entry.key] =
+                                        newValue;
+                                    print(
+                                        'Exercise "${entry.key}" completion status: $newValue');
+                                  }
+                                });
+                              },
+                            ),
                           ),
                         );
                       }).toList(),
@@ -117,7 +225,95 @@ class _MyHomePageState extends State<MyHomePage> {
           Container(
             margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
             child: ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                if (mygoal != null) {
+                  int totalExercises = 0;
+                  int completedExercises = 0;
+                  for (var dayExercises in mygoal!.goalList!) {
+                    if (dayExercises != null &&
+                        dayExercises.exerciseList != null) {
+                      totalExercises += dayExercises.exerciseList!.length;
+                      dayExercises.exerciseList!.forEach((exercise, completed) {
+                        if (completed == true) {
+                          completedExercises++;
+                        }
+                      });
+                    }
+                  }
+
+                  // Check if there are exercises before calculating progress
+                  if (totalExercises > 0) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Exercise Progress'),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                  'Completed $completedExercises/$totalExercises'),
+                              SizedBox(height: 10),
+                              LinearProgressIndicator(
+                                value: completedExercises / totalExercises,
+                                backgroundColor: Colors.red,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.blue),
+                              ),
+                            ],
+                          ),
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text('Close'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('No Exercises'),
+                          content:
+                              Text('There are no exercises for this goal.'),
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text('Close'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                } else {
+                  // Dialog for no goal selected
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('No Goal Selected'),
+                        content: Text('Please select or create a goal first.'),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text('Close'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              },
               icon: Icon(
                 Icons.add_chart,
                 color: Color.fromARGB(255, 10, 37, 241),
