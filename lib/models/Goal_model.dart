@@ -1,5 +1,9 @@
-import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:set_your_goal_app/models/goal_model.dart';
 
 class Goal extends ChangeNotifier {
   String id;
@@ -12,6 +16,21 @@ class Goal extends ChangeNotifier {
     for (int i = 0; i < durationInDays!; i++) {
       goalList!.add(null);
     }
+  }
+
+  factory Goal.fromJson(Map<String, dynamic> json) {
+    return Goal(
+      json['name'],
+      json['durationInDays'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'durationInDays': durationInDays,
+    };
   }
 
   void updateDurationAndDays(int day) {

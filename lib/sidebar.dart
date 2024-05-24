@@ -31,36 +31,40 @@ class _SidebarState extends State<Sidebar> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Edit Your Goal'),
+          title: Text('កែប្រែគំរោង'),
           content: Container(
             height: 200,
             child: Column(
               children: [
                 Container(
                   margin: EdgeInsets.fromLTRB(0, 0, 90, 0),
-                  child: Text('Edit Your Title Name',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      )),
+                  child: Text(
+                    'កែឈ្មោះគំរោងរបស់អ្នក',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 TextField(
                   controller: yourTitle,
                   decoration: InputDecoration(
-                    hintText: 'Your workout title',
+                    hintText: 'ឈ្មោះគំរោងរបស់អ្នក',
                     border: OutlineInputBorder(),
                   ),
                 ),
                 Container(
                   margin: EdgeInsets.fromLTRB(0, 0, 50, 0),
-                  child: Text('Edit Your duration in days',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      )),
+                  child: Text(
+                    'កែចំនួនថ្ងៃក្នុងគំរោងរបស់អ្នក',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 TextField(
                   controller: durationInDays,
                   decoration: InputDecoration(
-                    hintText: 'Duration in Days',
+                    hintText: 'ចំនួនថ្ងៃ',
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
@@ -70,17 +74,17 @@ class _SidebarState extends State<Sidebar> {
           ),
           actions: [
             Container(
-              child: ElevatedButton.icon(
+              child: TextButton.icon(
                 onPressed: () {
                   Navigator.pop(context);
                 },
                 icon: Icon(Icons.close),
-                label: Text('Close'),
-                style: ElevatedButton.styleFrom(),
+                label: Text('បោះបង់'),
+                style: TextButton.styleFrom(),
               ),
             ),
             Container(
-              child: ElevatedButton.icon(
+              child: TextButton.icon(
                 onPressed: () {
                   String title = yourTitle.text;
                   int days = int.tryParse(durationInDays.text) ?? 0;
@@ -98,14 +102,14 @@ class _SidebarState extends State<Sidebar> {
                         return AlertDialog(
                           title: Text('Invalid Input'),
                           content: Text(
-                            'Please enter a valid title and duration in days.',
+                            'ការបញ្ចូលឈ្មោះឬចំនួនថ្ងៃរបស់គំរោងមិនត្រឺមត្រូវ!',
                           ),
                           actions: [
                             TextButton(
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: Text('OK'),
+                              child: Text('បាទ/ចាស'),
                             ),
                           ],
                         );
@@ -114,7 +118,7 @@ class _SidebarState extends State<Sidebar> {
                   }
                 },
                 icon: Icon(Icons.save),
-                label: Text('Save'),
+                label: Text('រក្សាទុក'),
               ),
             ),
           ],
@@ -128,14 +132,14 @@ class _SidebarState extends State<Sidebar> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Goal'),
-          content: Text('Are you sure you want to delete this goal?'),
+          title: Text('លុបគំរោង'),
+          content: Text('តេីអ្នកចង់លុបគំរោងនេះមែនទេ?'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Cancel'),
+              child: Text('បោះបង់'),
             ),
             TextButton(
               onPressed: () {
@@ -144,7 +148,7 @@ class _SidebarState extends State<Sidebar> {
                 });
                 Navigator.pop(context);
               },
-              child: Text('Delete'),
+              child: Text('បាទ/ចាស'),
             ),
           ],
         );
@@ -186,7 +190,7 @@ class _SidebarState extends State<Sidebar> {
               Text(goal.name!),
               SizedBox(height: 4),
               Text(
-                'Duration in Days: ${goal.durationInDays}',
+                'ចំនួនថ្ងៃសរុប: ${goal.durationInDays}',
                 style: TextStyle(color: Colors.grey),
               ),
             ],
@@ -219,14 +223,14 @@ class _SidebarState extends State<Sidebar> {
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: Text('Create Your goal'),
+                            title: Text('បង្កេីតគំរោងថ្មី'),
                             content: Container(
                               height: 200,
                               child: Column(
                                 children: [
                                   Container(
                                     margin: EdgeInsets.fromLTRB(0, 0, 90, 0),
-                                    child: Text('Your Title Name',
+                                    child: Text('ឈ្មោះគំរោងរបស់អ្នក​ :​',
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                         )),
@@ -234,13 +238,13 @@ class _SidebarState extends State<Sidebar> {
                                   TextField(
                                     controller: yourTitle,
                                     decoration: InputDecoration(
-                                      hintText: 'Your workout title',
+                                      hintText: 'ឈ្មោះគំរោង',
                                       border: OutlineInputBorder(),
                                     ),
                                   ),
                                   Container(
-                                    margin: EdgeInsets.fromLTRB(0, 0, 50, 0),
-                                    child: Text('Your duration in days',
+                                    margin: EdgeInsets.fromLTRB(0, 0, 70, 0),
+                                    child: Text('ចំនួនថ្ងៃនៃគំរោងរបស់អ្នក :',
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                         )),
@@ -248,7 +252,7 @@ class _SidebarState extends State<Sidebar> {
                                   TextField(
                                     controller: durationInDays,
                                     decoration: InputDecoration(
-                                      hintText: 'Duration in Days',
+                                      hintText: 'ចំនួនថ្ងៃ',
                                       border: OutlineInputBorder(),
                                     ),
                                     keyboardType: TextInputType.number,
@@ -258,17 +262,17 @@ class _SidebarState extends State<Sidebar> {
                             ),
                             actions: [
                               Container(
-                                child: ElevatedButton.icon(
+                                child: TextButton.icon(
                                   onPressed: () {
                                     Navigator.pop(context);
                                   },
                                   icon: Icon(Icons.close),
-                                  label: Text('Close'),
-                                  style: ElevatedButton.styleFrom(),
+                                  label: Text('បោះបង់'),
+                                  style: TextButton.styleFrom(),
                                 ),
                               ),
                               Container(
-                                child: ElevatedButton.icon(
+                                child: TextButton(
                                   onPressed: () {
                                     String title = yourTitle.text;
                                     int days =
@@ -287,9 +291,9 @@ class _SidebarState extends State<Sidebar> {
                                         context: context,
                                         builder: (BuildContext context) {
                                           return AlertDialog(
-                                            title: Text('Invalid Input'),
+                                            title: Text('ការបញ្ចូលទិន្នន័យខុស'),
                                             content: Text(
-                                              'Please enter a valid title and duration in days.',
+                                              'ការបញ្ចូលទិន្នន័យគំរោងឬថ្ងៃមិនត្រឺមត្រូវ',
                                             ),
                                             actions: [
                                               TextButton(
@@ -304,8 +308,16 @@ class _SidebarState extends State<Sidebar> {
                                       );
                                     }
                                   },
-                                  icon: Icon(Icons.add),
-                                  label: Text('Add'),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.add),
+                                      SizedBox(
+                                          width:
+                                              8), // Add space between icon and label
+                                      Text('បញ្ចូល'),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -314,14 +326,14 @@ class _SidebarState extends State<Sidebar> {
                       );
                     },
                     icon: Icon(Icons.rule),
-                    label: Text('Create Your Goal'),
+                    label: Text('បញ្ចូលទិន្នន័យថ្មី'),
                   ),
                 ],
               ),
             ),
           ),
           if (goalListProvider.goalList.isEmpty)
-            Center(child: Text('No Data'))
+            Center(child: Text('មិនទាន់មានគំរោង'))
           else
             ...buildGoalTiles(context),
         ],

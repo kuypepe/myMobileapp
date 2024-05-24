@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'models/Goal_model.dart';
-import 'sidebar.dart';
 import 'models/goalList_provider.dart';
+import 'sidebar.dart';
 
 void main() {
   runApp(MultiProvider(providers: [
@@ -48,9 +48,9 @@ class _MyHomePageState extends State<MyHomePage> {
     return Consumer<GoalListProvider>(
       builder: (context, goalListProvider, child) {
         if (mygoal == null) {
-          return Text('Create Your Goal now or select one!');
+          return Text('សូមជ្រេីសរេីសគំរោងឬបង្កេីតថ្មី');
         } else if (mygoal!.goalList == null || mygoal!.goalList!.isEmpty) {
-          return Text('No exercises found for the selected goal.');
+          return Text('');
         } else {
           return ListView.builder(
             itemCount: mygoal!.goalList!.length,
@@ -59,58 +59,72 @@ class _MyHomePageState extends State<MyHomePage> {
               return (dayExercises == null ||
                       dayExercises.exerciseList!.isEmpty)
                   ? ListTile(
-                      title: Text('Day ${index + 1}: Please add exercise'),
+                      title: Text(
+                        'ថ្ងៃ ${index + 1}:'.padRight(25) + "មិនមានទិន្នន័យ",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     )
                   : ExpansionTile(
-                      title: Text("Day ${index + 1}:"),
+                      title: Text(
+                        "ថ្ងៃ ${index + 1}:".padRight(25) +
+                            "${dayExercises.exerciseList!.values.where((completed) => completed == true).length} / ${dayExercises.exerciseList!.length} បានរួចរាល់",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      textColor: Colors.blue,
                       children: dayExercises.exerciseList!.entries
                           .map<Widget>((entry) {
                         bool completed = entry.value!;
-                        return Dismissible(
-                          key: Key(entry.key!),
-                          background: Container(
-                              color: Colors.blue,
-                              child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: EdgeInsets.only(left: 16.0),
-                                    child:
-                                        Icon(Icons.edit, color: Colors.white),
-                                  ))),
-                          secondaryBackground: Container(
-                              color: Colors.red,
-                              child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Padding(
-                                    padding: EdgeInsets.only(right: 16.0),
-                                    child:
-                                        Icon(Icons.delete, color: Colors.white),
-                                  ))),
-                          confirmDismiss: (direction) async {
-                            if (direction == DismissDirection.startToEnd) {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  TextEditingController editController =
-                                      TextEditingController(text: entry.key);
-                                  return AlertDialog(
-                                    title: Text('Edit Exercise'),
-                                    content: TextField(
-                                      controller: editController,
-                                      decoration: InputDecoration(
-                                          hintText: 'Exercise name'),
-                                    ),
-                                    actions: [
-                                      ElevatedButton.icon(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        icon: Icon(Icons.close),
-                                        label: Text('Close'),
+                        return Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 30, 0),
+                          child: Dismissible(
+                            key: Key(entry.key!),
+                            background: Container(
+                                color: Colors.blue,
+                                child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Padding(
+                                      padding: EdgeInsets.only(left: 16.0),
+                                      child:
+                                          Icon(Icons.edit, color: Colors.white),
+                                    ))),
+                            secondaryBackground: Container(
+                                color: Colors.red,
+                                child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: 16.0),
+                                      child: Icon(Icons.delete,
+                                          color: Colors.white),
+                                    ))),
+                            confirmDismiss: (direction) async {
+                              if (direction == DismissDirection.startToEnd) {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    TextEditingController editController =
+                                        TextEditingController(text: entry.key);
+                                    return AlertDialog(
+                                      title: Text('កែទិន្នន័យក្នុងគំរោង'),
+                                      content: TextField(
+                                        controller: editController,
+                                        decoration: InputDecoration(
+                                          hintText: 'ឈ្មោះទិន្នន័យ',
+                                        ),
                                       ),
-                                      ElevatedButton.icon(
-                                        onPressed: () {
-                                          setState(() {
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text(
+                                            'បោះបង់',
+                                            style: TextStyle(
+                                                color: Colors
+                                                    .red), // កំណត់ពណ៌នៅក្នុងប៊ូតុង
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
                                             String oldKey = entry.key!;
                                             String newKey = editController.text;
                                             bool? value = dayExercises
@@ -118,83 +132,95 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 .remove(oldKey);
                                             dayExercises.exerciseList![newKey] =
                                                 value;
-                                          });
-                                          Navigator.pop(context);
-                                        },
-                                        icon: Icon(Icons.save),
-                                        label: Text('Save'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                              return false; // Prevent Dismissible from dismissing the item
-                            } else if (direction ==
-                                DismissDirection.endToStart) {
-                              return await showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text('Delete Confirmation'),
-                                    content: Text(
-                                        'Are you sure you want to delete this exercise?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop(false);
-                                        },
-                                        child: Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            dayExercises.exerciseList!
-                                                .remove(entry.key);
-                                          });
-                                          Navigator.of(context).pop(true);
-                                        },
-                                        child: Text('Delete'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            }
-                            return false;
-                          },
-                          onDismissed: (direction) {
-                            if (direction == DismissDirection.startToEnd) {
-                              // Handle edit action
-                            } else if (direction ==
-                                DismissDirection.endToStart) {
-                              setState(() {
-                                dayExercises.exerciseList!.remove(entry.key);
-                              });
-                            }
-                          },
-                          child: ListTile(
-                            title: Text(
-                              entry.key!,
-                              // Apply decoration to text if exercise is completed
-                              style: TextStyle(
-                                decoration: completed
-                                    ? TextDecoration.lineThrough
-                                    : null,
-                              ),
-                            ),
-                            trailing: Checkbox(
-                              value: completed,
-                              onChanged: (bool? newValue) {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text(
+                                            'រក្សាទុក',
+                                            style: TextStyle(
+                                                color: Colors
+                                                    .green), // កំណត់ពណ៌នៅក្នុងប៊ូតុង
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+
+                                return false; // Prevent Dismissible from dismissing the item
+                              } else if (direction ==
+                                  DismissDirection.endToStart) {
+                                return await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text('ការលុបទិន្នន័យ'),
+                                      content: Text(
+                                          'តេីអ្នកចង់លុបទិន្នន័យនេះមែនទេ?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop(false);
+                                          },
+                                          child: Text(
+                                            'បោះបង់',
+                                            style:
+                                                TextStyle(color: Colors.green),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              dayExercises.exerciseList!
+                                                  .remove(entry.key);
+                                            });
+                                            Navigator.of(context).pop(true);
+                                          },
+                                          child: Text(
+                                            'លុប',
+                                            style: TextStyle(color: Colors.red),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              }
+                              return false;
+                            },
+                            onDismissed: (direction) {
+                              if (direction == DismissDirection.startToEnd) {
+                                // Handle edit action
+                              } else if (direction ==
+                                  DismissDirection.endToStart) {
                                 setState(() {
-                                  if (newValue != null) {
-                                    completed = newValue;
-                                    dayExercises.exerciseList![entry.key] =
-                                        newValue;
-                                    print(
-                                        'Exercise "${entry.key}" completion status: $newValue');
-                                  }
+                                  dayExercises.exerciseList!.remove(entry.key);
                                 });
-                              },
+                              }
+                            },
+                            child: ListTile(
+                              title: Text(
+                                entry.key!,
+                                // Apply decoration to text if exercise is completed
+                                style: TextStyle(
+                                  decoration: completed
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                ),
+                              ),
+                              trailing: Checkbox(
+                                value: completed,
+                                onChanged: (bool? newValue) {
+                                  setState(() {
+                                    if (newValue != null) {
+                                      completed = newValue;
+                                      dayExercises.exerciseList![entry.key] =
+                                          newValue;
+                                      print(
+                                          'Exercise "${entry.key}" completion status: $newValue');
+                                    }
+                                  });
+                                },
+                              ),
                             ),
                           ),
                         );
@@ -212,12 +238,15 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       drawer: Sidebar(callback: selectGoal),
       appBar: AppBar(
-        backgroundColor: Colors.blue[400],
-        title: Text(
-          (mygoal == null) ? 'Select a goal or create one ' : mygoal!.name!,
-          style: TextStyle(
-            fontSize: 20,
-            color: Colors.white,
+        backgroundColor: const Color.fromARGB(255, 212, 5, 164),
+        title: Container(
+          margin: EdgeInsets.only(right: 0),
+          child: Text(
+            (mygoal == null) ? '' : mygoal!.name!,
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.white,
+            ),
           ),
         ),
         centerTitle: true,
@@ -246,13 +275,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
+                        double percentage =
+                            (completedExercises / totalExercises) * 100;
                         return AlertDialog(
-                          title: Text('Exercise Progress'),
+                          title: Text('ដំណេីរការនៃគំរោង'),
                           content: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                  'Completed $completedExercises/$totalExercises'),
+                                  'បានជោគជ័យ $completedExercises/$totalExercises'),
                               SizedBox(height: 10),
                               LinearProgressIndicator(
                                 value: completedExercises / totalExercises,
@@ -260,14 +291,19 @@ class _MyHomePageState extends State<MyHomePage> {
                                 valueColor:
                                     AlwaysStoppedAnimation<Color>(Colors.blue),
                               ),
+                              SizedBox(height: 10),
+                              Text(
+                                'អ្នកបានសម្រេចគំរោង ${percentage.toStringAsFixed(2)}%',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ],
                           ),
                           actions: [
-                            ElevatedButton(
+                            TextButton(
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: Text('Close'),
+                              child: Text('បោះបង់'),
                             ),
                           ],
                         );
@@ -278,15 +314,14 @@ class _MyHomePageState extends State<MyHomePage> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Text('No Exercises'),
-                          content:
-                              Text('There are no exercises for this goal.'),
+                          title: Text('មិនមានទិន្នន័យ'),
+                          content: Text('គំរោងនេះមិនទាន់មានទិន្នន័យ'),
                           actions: [
                             ElevatedButton(
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: Text('Close'),
+                              child: Text('បោះបង់'),
                             ),
                           ],
                         );
@@ -299,14 +334,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
-                        title: Text('No Goal Selected'),
-                        content: Text('Please select or create a goal first.'),
+                        title: Text('មិនមានគំរោង'),
+                        content: Text('សូមជ្រេីសរេិសគំរោងឬបង្កេីតគំរោងថ្មី'),
                         actions: [
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
                             },
-                            child: Text('Close'),
+                            child: Text('បោះបង់'),
                           ),
                         ],
                       );
@@ -315,10 +350,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 }
               },
               icon: Icon(
-                Icons.add_chart,
-                color: Color.fromARGB(255, 10, 37, 241),
+                Icons.check,
+                color: Color.fromARGB(255, 0, 244, 37),
               ),
-              label: Text('Your Progress'),
+              label: Text('ដំណេីរការ'),
             ),
           ),
         ],
@@ -336,15 +371,15 @@ class _MyHomePageState extends State<MyHomePage> {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Text('No Goal Selected'),
-                  content: Text('Please select or create a goal first.'),
+                  title: Text('មិនមានគំរោង'),
+                  content: Text('សូមជ្រេីសរេិសគំរោងឬបង្កេីតគំរោងថ្មី'),
                   actions: [
                     Container(
                       child: ElevatedButton.icon(
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        label: Text('Close'),
+                        label: Text('បោះបង់'),
                         icon: Icon(Icons.close),
                       ),
                     ),
@@ -359,13 +394,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 return StatefulBuilder(
                   builder: (context, setState) {
                     return AlertDialog(
-                      title: Text('Add your exercise'),
+                      title: Text('បញ្ចូលទិន្នន័យ'),
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Row(
                             children: [
-                              Text('Select Date:'),
+                              Text('ជ្រេីសរេីសថ្ងៃនៃគំរោង:'),
                               SizedBox(width: 10),
                               DropdownButton<int>(
                                 value: selectedDay,
@@ -373,7 +408,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   mygoal!.durationInDays!,
                                   (index) => DropdownMenuItem(
                                     value: index,
-                                    child: Text('Day ${index + 1}'),
+                                    child: Text('ថ្ងៃ ${index + 1}'),
                                   ),
                                 ),
                                 onChanged: (int? newValue) {
@@ -388,23 +423,27 @@ class _MyHomePageState extends State<MyHomePage> {
                           TextField(
                             controller: widget.addExerciseController,
                             decoration: InputDecoration(
-                                hintText: 'Name your exercise',
+                                hintText: 'ឈ្នោះរបស់ទិន្នន័យ',
                                 border: OutlineInputBorder()),
                           ),
                         ],
                       ),
                       actions: [
                         Container(
-                          child: ElevatedButton.icon(
+                          child: TextButton.icon(
                             onPressed: () {
                               Navigator.pop(context);
                             },
-                            label: Text('Close'),
                             icon: Icon(Icons.close),
+                            label: Text('បោះបង់'),
+                            style: ButtonStyle(
+                              foregroundColor:
+                                  MaterialStateProperty.all<Color>(Colors.red),
+                            ),
                           ),
                         ),
                         Container(
-                          child: ElevatedButton.icon(
+                          child: TextButton.icon(
                             onPressed: () {
                               if (widget
                                   .addExerciseController.text.isNotEmpty) {
@@ -418,7 +457,11 @@ class _MyHomePageState extends State<MyHomePage> {
                               }
                             },
                             icon: Icon(Icons.add),
-                            label: Text('Add'),
+                            label: Text('បញ្ចូល'),
+                            style: ButtonStyle(
+                              foregroundColor:
+                                  MaterialStateProperty.all<Color>(Colors.blue),
+                            ),
                           ),
                         ),
                       ],
