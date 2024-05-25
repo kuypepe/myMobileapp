@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'models/Goal_model.dart';
@@ -132,30 +133,39 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 .containsKey(newKey)) {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(SnackBar(
-                                                      content: Text(
-                                                          'Exercise with this name already exists!')));
+                                                content: Text(
+                                                    'Exercise with this name already exists!'),
+                                              ));
                                             } else {
-                                              bool? value = dayExercises
-                                                  .exerciseList!
-                                                  .remove(oldKey);
-                                              dayExercises
-                                                      .exerciseList![newKey] =
-                                                  value;
+                                              // Create a LinkedHashMap to maintain order
+                                              LinkedHashMap<String?, bool?>
+                                                  updatedMap = LinkedHashMap<
+                                                      String?, bool?>();
 
-                                              // Save changes and notify listeners
-                                              // Provider.of<GoalListProvider>(
-                                              //         context,
-                                              //         listen: false)
-                                              //     .saveGoals();
+                                              // Iterate through the existing map
+                                              dayExercises.exerciseList!
+                                                  .forEach((key, value) {
+                                                if (key == oldKey) {
+                                                  updatedMap[newKey] =
+                                                      value; // Add new key-value pair
+                                                } else {
+                                                  updatedMap[key] =
+                                                      value; // Retain other key-value pairs
+                                                }
+                                              });
+
+                                              // Replace the old map with the updated map
+                                              dayExercises.exerciseList =
+                                                  updatedMap;
+
                                               setState(() {}); // Refresh the UI
                                               Navigator.pop(context);
                                             }
                                           },
                                           child: Text(
                                             'រក្សាទុក',
-                                            style: TextStyle(
-                                                color: Colors
-                                                    .green), // កំណត់ពណ៌នៅក្នុងប៊ូតុង // កំណត់ពណ៌នៅក្នុងប៊ូតុង
+                                            style:
+                                                TextStyle(color: Colors.green),
                                           ),
                                         ),
                                       ],
