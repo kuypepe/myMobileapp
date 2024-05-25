@@ -16,21 +16,21 @@ class GoalListProvider extends ChangeNotifier {
 
   Future<void> _loadGoals() async {
     try {
-      await _fileStorage.init(); // Initialize file storage
-      List<Goal> goals = await _fileStorage.readGoals(); // Read goals from file
+      await _fileStorage.init();
+      List<Goal> goals = await _fileStorage.readGoals();
       _goalList.addAll(goals);
       notifyListeners();
+      print("Goals loaded successfully: $_goalList"); // Add this line
     } catch (e) {
-      // Handle error
       print("Error loading goals: $e");
     }
   }
 
   Future<void> _saveGoals() async {
     try {
-      await _fileStorage.writeGoals(_goalList); // Write goals to file
+      await _fileStorage.writeGoals(_goalList);
+      print("Goals saved successfully: $_goalList"); // Add this line
     } catch (e) {
-      // Handle error
       print("Error saving goals: $e");
     }
   }

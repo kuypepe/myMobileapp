@@ -88,7 +88,6 @@ class _SidebarState extends State<Sidebar> {
                 onPressed: () {
                   String title = yourTitle.text;
                   int days = int.tryParse(durationInDays.text) ?? 0;
-
                   if (title.isNotEmpty && days > 0) {
                     setState(() {
                       // Update the goal using GoalListProvider

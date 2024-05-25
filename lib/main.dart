@@ -127,18 +127,35 @@ class _MyHomePageState extends State<MyHomePage> {
                                           onPressed: () {
                                             String oldKey = entry.key!;
                                             String newKey = editController.text;
-                                            bool? value = dayExercises
-                                                .exerciseList!
-                                                .remove(oldKey);
-                                            dayExercises.exerciseList![newKey] =
-                                                value;
-                                            Navigator.pop(context);
+
+                                            if (dayExercises.exerciseList!
+                                                .containsKey(newKey)) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                      content: Text(
+                                                          'Exercise with this name already exists!')));
+                                            } else {
+                                              bool? value = dayExercises
+                                                  .exerciseList!
+                                                  .remove(oldKey);
+                                              dayExercises
+                                                      .exerciseList![newKey] =
+                                                  value;
+
+                                              // Save changes and notify listeners
+                                              // Provider.of<GoalListProvider>(
+                                              //         context,
+                                              //         listen: false)
+                                              //     .saveGoals();
+                                              setState(() {}); // Refresh the UI
+                                              Navigator.pop(context);
+                                            }
                                           },
                                           child: Text(
                                             'រក្សាទុក',
                                             style: TextStyle(
                                                 color: Colors
-                                                    .green), // កំណត់ពណ៌នៅក្នុងប៊ូតុង
+                                                    .green), // កំណត់ពណ៌នៅក្នុងប៊ូតុង // កំណត់ពណ៌នៅក្នុងប៊ូតុង
                                           ),
                                         ),
                                       ],

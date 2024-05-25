@@ -4,40 +4,30 @@ import 'package:path_provider/path_provider.dart';
 import 'package:set_your_goal_app/models/Goal_model.dart';
 
 class FileStorage {
-  late File _file; // Declare file variable
+  late File _goalsFile;
 
   Future<void> init() async {
-    try {
-      final directory = await getApplicationDocumentsDirectory();
-      _file = File('${directory.path}/goals.json');
-    } catch (e) {
-      // Handle error
-      print("Error initializing file storage: $e");
+    final directory = await getApplicationDocumentsDirectory();
+    final path = directory.path;
+    _goalsFile = File('$path/goals.json');
+    if (!_goalsFile.existsSync()) {
+      await _goalsFile.create();
     }
   }
 
   Future<List<Goal>> readGoals() async {
     try {
-      if (_file.existsSync()) {
-        final content = await _file.readAsString();
-        final List<dynamic> jsonList = jsonDecode(content);
-        return jsonList.map((json) => Goal.fromJson(json)).toList();
-      }
+      final jsonContent = await _goalsFile.readAsString();
+      final List<dynamic> jsonList = json.decode(jsonContent);
+      return jsonList.map((item) => Goal.fromJson(item)).toList();
     } catch (e) {
-      // Handle error
       print("Error reading goals: $e");
+      return [];
     }
-    return [];
   }
 
   Future<void> writeGoals(List<Goal> goals) async {
-    try {
-      final jsonList = goals.map((goal) => goal.toJson()).toList();
-      final jsonString = jsonEncode(jsonList);
-      await _file.writeAsString(jsonString);
-    } catch (e) {
-      // Handle error
-      print("Error writing goals: $e");
-    }
+    final jsonString = json.encode(goals.map((goal) => goal.toJson()).toList());
+    await _goalsFile.writeAsString(jsonString);
   }
 }
