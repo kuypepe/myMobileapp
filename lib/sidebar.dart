@@ -299,7 +299,7 @@ class _SidebarState extends State<Sidebar> {
                                                 onPressed: () {
                                                   Navigator.pop(context);
                                                 },
-                                                child: Text('OK'),
+                                                child: Text('បាទ/ចាស'),
                                               ),
                                             ],
                                           );
@@ -324,8 +324,8 @@ class _SidebarState extends State<Sidebar> {
                         },
                       );
                     },
-                    icon: Icon(Icons.rule),
-                    label: Text('បញ្ចូលទិន្នន័យថ្មី'),
+                    icon: Icon(Icons.format_list_numbered_outlined),
+                    label: Text('បង្កេីតគំរោងថ្មី'),
                   ),
                 ],
               ),

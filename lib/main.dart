@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import 'models/Goal_model.dart';
 import 'models/goalList_provider.dart';
 import 'sidebar.dart';
+import 'package:audioplayers/audioplayers.dart';
 
+// final AudioPlayer audioPlayer = AudioPlayer();
 void main() {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => GoalListProvider())
@@ -49,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Consumer<GoalListProvider>(
       builder: (context, goalListProvider, child) {
         if (mygoal == null) {
-          return Text('សូមជ្រេីសរេីសគំរោងឬបង្កេីតថ្មី');
+          return Text('សូមជ្រេីសរេីសគំរោងឬបង្កេីតថ្មី។');
         } else if (mygoal!.goalList == null || mygoal!.goalList!.isEmpty) {
           return Text('');
         } else {
@@ -245,8 +247,26 @@ class _MyHomePageState extends State<MyHomePage> {
                                       print(
                                           'Exercise "${entry.key}" completion status: $newValue');
                                     }
+                                    if (newValue != null && newValue) {
+                                      final player = AudioPlayer();
+                                      player.play(
+                                          AssetSource('sounds/jobs_done.mp3'));
+                                    } else {
+                                      final player = AudioPlayer();
+                                      player.play(AssetSource(
+                                          'sounds/classic_hurt.mp3'));
+                                    }
                                   });
                                 },
+                                fillColor:
+                                    MaterialStateProperty.resolveWith((states) {
+                                  if (states.contains(MaterialState.selected)) {
+                                    return Colors.green[
+                                        400]; // Change this to the color you want when checked
+                                  }
+                                  return Colors
+                                      .red; // Change this to the color you want when unchecked
+                                }),
                               ),
                             ),
                           ),
@@ -266,15 +286,24 @@ class _MyHomePageState extends State<MyHomePage> {
       drawer: Sidebar(callback: selectGoal),
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 212, 5, 164),
-        title: Container(
-          margin: EdgeInsets.only(right: 0),
-          child: Text(
-            (mygoal == null) ? '' : mygoal!.name!,
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.white,
+        title: Column(
+          //crossAxisAlignment: CrossAxisAlignment.start,
+          //mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              //margin: EdgeInsets.only(right: 0),
+              margin: EdgeInsets.fromLTRB(0, 08, 0, 0),
+              child: Text(
+                (mygoal == null) ? '' : mygoal!.name!,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+              ),
             ),
-          ),
+            SizedBox(height: 10),
+          ],
         ),
         centerTitle: true,
         actions: [
@@ -415,6 +444,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             );
           } else {
+            List<TextEditingController> controllers = [TextEditingController()];
             showDialog<void>(
               context: context,
               builder: (BuildContext context) {
@@ -422,38 +452,74 @@ class _MyHomePageState extends State<MyHomePage> {
                   builder: (context, setState) {
                     return AlertDialog(
                       title: Text('បញ្ចូលទិន្នន័យ'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
+                      content: SingleChildScrollView(
+                        child: Container(
+                          width: double.maxFinite,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('ជ្រេីសរេីសថ្ងៃនៃគំរោង:'),
-                              SizedBox(width: 10),
-                              DropdownButton<int>(
-                                value: selectedDay,
-                                items: List.generate(
-                                  mygoal!.durationInDays!,
-                                  (index) => DropdownMenuItem(
-                                    value: index,
-                                    child: Text('ថ្ងៃ ${index + 1}'),
+                              Row(
+                                children: [
+                                  Text('ជ្រេីសរេីសថ្ងៃនៃគំរោង:'),
+                                  //SizedBox(width: 10),
+                                  DropdownButton<int>(
+                                    value: selectedDay,
+                                    items: List.generate(
+                                      mygoal!.durationInDays!,
+                                      (index) => DropdownMenuItem(
+                                        value: index,
+                                        child: Text('ថ្ងៃ ${index + 1}'),
+                                      ),
+                                    ),
+                                    onChanged: (int? newValue) {
+                                      setState(() {
+                                        selectedDay = newValue!;
+                                      });
+                                    },
                                   ),
-                                ),
-                                onChanged: (int? newValue) {
-                                  setState(() {
-                                    selectedDay = newValue!;
-                                  });
-                                },
+                                ],
                               ),
+                              Container(
+                                margin: EdgeInsets.fromLTRB(0, 0, 120, 0),
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    setState(() {
+                                      controllers.add(TextEditingController());
+                                    });
+                                  },
+                                  icon: Icon(
+                                    Icons.add,
+                                    color: Colors.green,
+                                  ),
+                                  label: Text('បន្ថែម'),
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              ...controllers.map((controller) {
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 5.0),
+                                  child: TextField(
+                                    controller: controller,
+                                    decoration: InputDecoration(
+                                      hintText: 'ឈ្មោះរបស់ទិន្នន័យ',
+                                      border: OutlineInputBorder(),
+                                      suffixIcon: IconButton(
+                                        icon: Icon(Icons.remove_circle,
+                                            color: Colors.red),
+                                        onPressed: () {
+                                          setState(() {
+                                            controllers.remove(controller);
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                             ],
                           ),
-                          SizedBox(height: 20),
-                          TextField(
-                            controller: widget.addExerciseController,
-                            decoration: InputDecoration(
-                                hintText: 'ឈ្នោះរបស់ទិន្នន័យ',
-                                border: OutlineInputBorder()),
-                          ),
-                        ],
+                        ),
                       ),
                       actions: [
                         Container(
@@ -472,14 +538,18 @@ class _MyHomePageState extends State<MyHomePage> {
                         Container(
                           child: TextButton.icon(
                             onPressed: () {
-                              if (widget
-                                  .addExerciseController.text.isNotEmpty) {
-                                // Use the provider to add the exercise
-                                Provider.of<GoalListProvider>(context,
-                                        listen: false)
-                                    .addExerciseToGoal(mygoal!, selectedDay,
-                                        widget.addExerciseController.text);
-                                widget.addExerciseController.clear();
+                              if (controllers.any(
+                                  (controller) => controller.text.isNotEmpty)) {
+                                for (var controller in controllers) {
+                                  if (controller.text.isNotEmpty) {
+                                    Provider.of<GoalListProvider>(context,
+                                            listen: false)
+                                        .addExerciseToGoal(mygoal!, selectedDay,
+                                            controller.text);
+                                  }
+                                }
+                                controllers.forEach(
+                                    (controller) => controller.clear());
                                 Navigator.pop(context);
                               }
                             },
@@ -500,7 +570,7 @@ class _MyHomePageState extends State<MyHomePage> {
           }
         },
         child: Icon(Icons.add),
-        backgroundColor: Colors.blue,
+        backgroundColor: Color.fromARGB(255, 212, 5, 164),
       ),
     );
   }
