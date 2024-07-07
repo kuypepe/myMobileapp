@@ -3,16 +3,15 @@ import 'package:uuid/uuid.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:set_your_goal_app/models/goal_model.dart';
-import 'dart:collection';
 
 class Goal extends ChangeNotifier {
   late String id;
   late String? name;
   late int? durationInDays;
+  late DateTime startDate; // Added field for Start Date
   late List<ExerciseListPerDay?>? goalList;
 
-  Goal(this.name, this.durationInDays) : id = Uuid().v4() {
+  Goal(this.name, this.durationInDays, this.startDate) : id = Uuid().v4() {
     goalList = List.generate(durationInDays!, (_) => null);
   }
 
@@ -21,11 +20,13 @@ class Goal extends ChangeNotifier {
     return Goal(
       json['name'],
       json['durationInDays'],
-    )..id = json['id'] ?? Uuid().v4()
-     ..goalList = (json['goalList'] as List<dynamic>)
-        .map((dayData) =>
-            dayData != null ? ExerciseListPerDay.fromJson(dayData) : null)
-        .toList();
+      DateTime.parse(json['startDate']), // Updated line to parse start date
+    )
+      ..id = json['id'] ?? Uuid().v4()
+      ..goalList = (json['goalList'] as List<dynamic>)
+          .map((dayData) =>
+              dayData != null ? ExerciseListPerDay.fromJson(dayData) : null)
+          .toList();
   }
 
   // Serialize Goal object to JSON
@@ -34,6 +35,8 @@ class Goal extends ChangeNotifier {
       'id': id,
       'name': name,
       'durationInDays': durationInDays,
+      'startDate':
+          startDate.toIso8601String(), // Updated line to format start date
       'goalList': goalList?.map((day) => day?.toJson()).toList(),
     };
   }
@@ -41,7 +44,7 @@ class Goal extends ChangeNotifier {
   // Update duration and days
   void updateDurationAndDays(int day) {
     if (day == durationInDays) return;
-    
+
     if (day < durationInDays!) {
       goalList!.removeRange(day, durationInDays!);
     } else {
@@ -58,6 +61,28 @@ class Goal extends ChangeNotifier {
     }
     goalList![day]!.addExercise(exercise);
     notifyListeners();
+  }
+
+  // Get the formatted date range for the goal
+  String getDateRange() {
+    DateTime endDate = startDate.add(Duration(days: durationInDays! - 1));
+    String startDateStr =
+        "${startDate.day}/${startDate.month}/${startDate.year}";
+    String endDateStr = "${endDate.day}/${endDate.month}/${endDate.year}";
+    return "$startDateStr​ --> $endDateStr";
+  }
+
+  String getStartDate() {
+    String startDateStr =
+        "${startDate.day.toString().padLeft(2, '0')}/${startDate.month.toString().padLeft(2, '0')}/${startDate.year}";
+    return startDateStr;
+  }
+
+  String getEndDate() {
+    DateTime endDate = startDate.add(Duration(days: durationInDays! - 1));
+    String endDateStr =
+        "${endDate.day.toString().padLeft(2, '0')}/${endDate.month.toString().padLeft(2, '0')}/${endDate.year}";
+    return endDateStr;
   }
 }
 
