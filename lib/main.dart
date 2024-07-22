@@ -47,12 +47,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  String formatDateForDay(int dayIndex) {
-    DateTime startDate = mygoal!.startDate!;
-    DateTime currentDay = startDate.add(Duration(days: dayIndex));
-    return "${currentDay.day.toString().padLeft(2, '0')}/${currentDay.month.toString().padLeft(2, '0')}/${currentDay.year}";
-  }
-
   Widget buildBody(BuildContext context) {
     return Consumer<GoalListProvider>(
       builder: (context, goalListProvider, child) {
@@ -65,55 +59,19 @@ class _MyHomePageState extends State<MyHomePage> {
             itemCount: mygoal!.goalList!.length,
             itemBuilder: (context, index) {
               var dayExercises = mygoal!.goalList![index];
-
-              // Calculate the date for the current day
-              DateTime startDate = mygoal!.startDate!;
-              DateTime currentDay = startDate.add(Duration(days: index));
-
-              // Format the date as DD/MM/YYYY
-              String formattedDate =
-                  "${currentDay.day.toString().padLeft(2, '0')}/${currentDay.month.toString().padLeft(2, '0')}/${currentDay.year}";
-
               return (dayExercises == null ||
                       dayExercises.exerciseList!.isEmpty)
                   ? ListTile(
                       title: Text(
-                        'ថ្ងៃ ${index + 1}:($formattedDate) - គ្មានទិន្នន័យ',
+                        'ថ្ងៃ ${index + 1}:'.padRight(25) + "មិនមានទិន្នន័យ",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     )
                   : ExpansionTile(
-                      title: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'ថ្ងៃ ${index + 1}: ($formattedDate)\n',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                //fontSize: 16.0,
-                              ),
-                            ),
-                            WidgetSpan(
-                              child: SizedBox(
-                                  height: 25), // Adds a 5-pixel vertical space
-                            ),
-                            WidgetSpan(
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    left:
-                                        40.0), // Adjust this value for the right amount of padding
-                                child: Text(
-                                  'ជោគជ័យ ${dayExercises.exerciseList!.values.where((completed) => completed == true).length} / ${dayExercises.exerciseList!.length} ',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    // You can adjust the font size here
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        textAlign: TextAlign.start,
+                      title: Text(
+                        "ថ្ងៃ ${index + 1}:".padRight(25) +
+                            "${dayExercises.exerciseList!.values.where((completed) => completed == true).length} / ${dayExercises.exerciseList!.length} បានរួចរាល់",
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       textColor: Colors.blue,
                       children: dayExercises.exerciseList!.entries
@@ -259,10 +217,10 @@ class _MyHomePageState extends State<MyHomePage> {
                               return false;
                             },
                             onDismissed: (direction) {
-                              if (direction == DismissDirection.endToStart) {
+                              if (direction == DismissDirection.startToEnd) {
                                 // Handle edit action
                               } else if (direction ==
-                                  DismissDirection.startToEnd) {
+                                  DismissDirection.endToStart) {
                                 setState(() {
                                   dayExercises.exerciseList!.remove(entry.key);
                                 });
@@ -470,7 +428,7 @@ class _MyHomePageState extends State<MyHomePage> {
               builder: (BuildContext context) {
                 return AlertDialog(
                   title: Text('មិនមានគំរោង'),
-                  content: Text('សូមជ្រេីសរេីសគំរោងឬបង្កេីតគំរោងថ្មី'),
+                  content: Text('សូមជ្រេីសរេិសគំរោងឬបង្កេីតគំរោងថ្មី'),
                   actions: [
                     Container(
                       child: ElevatedButton.icon(
@@ -503,7 +461,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               Row(
                                 children: [
                                   Text('ជ្រេីសរេីសថ្ងៃនៃគំរោង:'),
-                                  SizedBox(width: 10),
+                                  //SizedBox(width: 10),
                                   DropdownButton<int>(
                                     value: selectedDay,
                                     items: List.generate(
@@ -521,13 +479,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 10),
-                              // Add this Text widget to show the date
-                              Text(
-                                'ថ្ងៃ ${selectedDay + 1}: ${formatDateForDay(selectedDay)}',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(height: 10),
                               Container(
                                 margin: EdgeInsets.fromLTRB(0, 0, 120, 0),
                                 child: ElevatedButton.icon(

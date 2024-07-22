@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:set_your_goal_app/models/Goal_model.dart';
 import 'package:set_your_goal_app/models/file_storage.dart'; // Import FileStorage
+import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class GoalListProvider extends ChangeNotifier {
   final List<Goal> _goalList = [];
@@ -32,8 +35,8 @@ class GoalListProvider extends ChangeNotifier {
     }
   }
 
-  void addGoal(String title, int durationDays, DateTime startDate) {
-    _goalList.add(Goal(title, durationDays, startDate));
+  void addGoal(String title, int durationDays) {
+    _goalList.add(Goal(title, durationDays));
     _saveGoals(); // Save goals after adding
     notifyListeners();
   }
@@ -52,10 +55,9 @@ class GoalListProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateGoal(Goal goal, String newTitle, int newDuration, DateTime newStartDate) {
+  void updateGoal(Goal goal, String newTitle, int newDuration) {
     goal.name = newTitle;
     goal.updateDurationAndDays(newDuration);
-    goal.startDate = newStartDate;  // Update the start date
     _saveGoals(); // Save goals after updating
     notifyListeners();
   }
